@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import logging.config
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # modules
+    'rest_framework',
+    'drf_yasg',
 
     # apps
     'gas',
@@ -123,3 +128,70 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# LOGGER
+logging_path = os.path.join(BASE_DIR, "logs")
+os.makedirs(logging_path, exist_ok=True)
+
+
+LOGGING = {
+    "version": 1,  # Версия конфигурации логирования
+    "disable_existing_loggers": False,  # Не отключать существующие логгеры
+    "formatters": {  # Формат вывода логов
+        "detailed": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+        "simple": {
+            "format": "%(levelname)s - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S"
+        }
+    },
+    "filters": {  # Фильтры для логов
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+    },
+    "handlers": {  # Обработчики логов
+        "info_file": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(logging_path, "info.log"),
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 3,
+            "formatter": "detailed",
+        },
+        "error_file": {
+            "level": "WARNING",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(logging_path, "error.log"),
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 3,
+            "formatter": "detailed",
+        },
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "filters": ["require_debug_true"],
+            "formatter": "simple",
+        }
+    },
+    "loggers": {
+        "base_logger": {
+            "handlers": ["console", "info_file"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "error_logger": {
+            "handlers": [ "console", "error_file"],
+            "level": "ERROR",
+            "propagate": False,
+        }
+    },
+}
+
+# Применяем конфигурацию
+logging.config.dictConfig(LOGGING)
+
+BASE_LOGGER = logging.getLogger("base_logger")
+ERROR_LOGGER = logging.getLogger("error_logger")
