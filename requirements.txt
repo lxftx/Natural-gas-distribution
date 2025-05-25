@@ -1,2 +1,3 @@
 ortools==9.12.4544
 isort==6.0.1
+Django==5.2.1
