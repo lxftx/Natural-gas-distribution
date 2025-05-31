@@ -133,3 +133,41 @@ class CalculateSerializer(serializers.Serializer):
                 )
 
         return data
+    
+class CalculatedSerializer(serializers.Serializer):
+    """
+    Сериализатор для рассчитанных оптимальных значений.
+    """
+
+    objective = serializers.FloatField(
+        min_value = 0,
+        help_text = "Целевая функция руб/ч"
+    )
+    gas_distribution = serializers.ListField(
+        child=serializers.FloatField(
+            min_value = 0
+        ),
+        help_text="Распределение ПГ (м3/ч)"
+    )
+    total_gas_consumption = serializers.FloatField(
+        min_value = 0,
+        help_text = "Общий расход ПГ м3/ч"
+    )
+    total_coke_consumption = serializers.FloatField(
+        min_value = 0,
+        help_text = "Общий расход кокса т/ч"
+    )
+    total_iron_production = serializers.FloatField(
+        min_value = 0,
+        help_text = "Общее производство чугуна т/ч"
+    )
+    sulfur_content = serializers.ListField(
+        child=serializers.FloatField(
+            min_value = 0
+        ),
+        help_text="одержание серы (%)"
+    )
+    status = serializers.CharField(
+        min_length=1,
+        help_text="Статус"
+    )
