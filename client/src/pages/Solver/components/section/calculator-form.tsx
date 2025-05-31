@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react"
 import { ResultModal } from "../ResultModal.tsx";
 import type { FurnaceData, ModalProps } from "../types.ts";
 
-const Solver = () => {
+function Solver() {
   const [furnaceCount, setFurnaceCount] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ModalProps | null>(null);
@@ -272,4 +272,4 @@ const Solver = () => {
   );
 };
 
-export default Solver;
+export default Solver
