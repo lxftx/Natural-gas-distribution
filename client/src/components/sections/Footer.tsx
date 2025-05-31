@@ -20,7 +20,7 @@ function Footer() {
                         <h4 className="text-lg font-semibold mb-4">Разработчики</h4>
                         <ul className="space-y-2">
                             <li className="flex items-center gap-2">
-                                <span className="text-gray-400">Научный руководитель:</span>
+                                <span className="text-gray-400">Руководитель:</span>
                                 <span>Гурин И.А.</span>
                             </li>
                             <li className="flex items-center gap-2">
