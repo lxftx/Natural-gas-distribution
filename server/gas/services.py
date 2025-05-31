@@ -172,3 +172,80 @@ class GasDistributionService:
             ],
             "status": "OPTIMAL"
         }
+
+class MainParameters:
+    """
+    Класс для получения основных параметров.
+    """
+
+    @staticmethod
+    def values() -> Dict[str, float]:
+        return dict(
+            C_k=1.8,  # руб/кг
+            C_pg=0.6,  # руб/м3
+            V_pg_total=120000,  # м3/ч
+            K_total=520,  # т/ч
+            P_total=1100,  # т/ч
+            C_p=1
+        )
+    
+class BasicFurnaceParameters:
+    """
+    Класс для получения базовых параметров печей.
+    """
+
+    @staticmethod
+    def values(N: int) -> Dict[str, List[float]]:
+        return dict(
+            V_pg_0=[15000, 17000, 11000, 13000, 12000, 15000, 17000, 14000],
+            V_pg_min=[10000] * N,
+            V_pg_max=[20000] * N,
+            K_0=[64.25, 66.76, 56.08, 49.78, 62.92, 60.02, 81.68, 69.7],
+            e=[0.59, 0.53, 0.85, 0.59, 0.75, 0.79, 0.87, 0.77],
+            P_0=[146.4, 136.4, 134.30, 122.3, 138.2, 138.8, 191.4, 151.6]
+        )
+
+class SulfurParameters:
+    """
+    Класс для получения параметров серы.
+    """
+
+    @staticmethod
+    def values(N: int) -> Dict[str, List[float]]:
+        return dict(
+            S_0=[0.015, 0.014, 0.013, 0.014, 0.017, 0.016, 0.013, 0.014],
+            S_min=[0.000] * N,
+            S_max=[0.025] * N
+        )
+    
+class InfluenceCoefficients:
+    """
+    Класс для получения коэффициентов влияния.
+    """
+
+    @staticmethod
+    def values(N: int) -> Dict[str, List[float]]:
+        return dict(
+            delta_P_pg=[-0.0007295, -0.0006695, 0.00, -0.00072373, -0.0007724, -0.0006872, -0.0007284, -0.0007305],
+            delta_P_k=[-0.002970, -0.002970, -0.002928, -0.002897, -0.002970, -0.002970, -0.003316, -0.00356],
+            delta_S_pg=[-0.0000034, -0.0000034, -0.0000035, -0.0000033, -0.0000034, -0.0000034, -0.0000034, -0.0000034],
+            delta_S_k=[-0.0000030, -0.0000029, -0.0000032, -0.0000029, -0.0000031, -0.0000028, -0.0000030, -0.0000031],
+            delta_S_p=[0] * N
+        )
+
+class DefaultInputValues:
+    """
+    Сервис для получения заготовленных входных данных
+    """
+
+    N = 8
+
+    @classmethod
+    def get_default_values(cls):
+        return dict(
+            N=cls.N,
+            **MainParameters.values(),
+            **BasicFurnaceParameters.values(cls.N),
+            **SulfurParameters.values(cls.N),
+            **InfluenceCoefficients.values(cls.N)
+        )
