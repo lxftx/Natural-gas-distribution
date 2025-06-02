@@ -21,7 +21,6 @@ export interface FurnaceData {
   delta_S_p: number[]
 }
 
-
 export interface ResultData {
   gas_distribution: number[];
   objective: number;
@@ -33,6 +32,15 @@ export interface ResultData {
 }
 
 export interface ModalProps {
-  data: | ResultData | { error: string};
+  data: | ResultData | { error: string };
   onClose: () => void;
+}
+
+export interface HistoryDataPost extends ResultData {
+  calculate: FurnaceData,
+}
+
+export interface HistoryDataGet extends HistoryDataPost {
+  id: number,
+  created_at: Date,
 }

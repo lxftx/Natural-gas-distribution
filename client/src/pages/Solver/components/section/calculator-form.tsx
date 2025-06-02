@@ -6,12 +6,13 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
 import { ResultModal } from "../ResultModal.tsx";
-import type { FurnaceData, ModalProps } from "../types.ts";
+import type { FurnaceData, ResultData, HistoryDataPost } from "../types.ts";
 
 function Solver() {
   const [furnaceCount, setFurnaceCount] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<ModalProps | null>(null);
+  const [result, setResult] = useState<ResultData | { error: string } | null>(null);
+  const [normalized, setNormalized] = useState<FurnaceData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -132,11 +133,12 @@ function Solver() {
         delta_S_k: getNumberArray(data, "delta_S_k"),
         delta_S_p: getNumberArray(data, "delta_S_p"),
       }
-
+      
+      setNormalized(normalizedData);
       // Нормализация данных и отправка...
       const response = await API.calculate(normalizedData);
-      
       setResult(response.data);
+
       setIsModalOpen(true);
     } catch (err: any) {
       setResult({ error: err.response?.data?.error || "Неизвестная ошибка" });
@@ -145,6 +147,16 @@ function Solver() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (result && 'gas_distribution' in result && normalized) {
+      const history: HistoryDataPost = {
+        ...result,
+        calculate: normalized
+      };
+      API.addHistory(history);
+    }
+  }, [result, normalized]);
 
   return (
     <div className="container mx-auto py-8">

@@ -6,55 +6,43 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, Search, Eye, Trash2, RefreshCw } from "lucide-react"
-// import { useToast } from "@/hooks/use-toast"
 import API from "@/api"
-import type { CalculationHistory } from "@/lib/types"
+import type { HistoryDataGet } from "../types"
 import { ResultModal } from "../ResultModal"
 
 function History() {
-  const [calculations, setCalculations] = useState<CalculationHistory[]>([])
+  const [calculations, setCalculations] = useState<HistoryDataGet[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedResult, setSelectedResult] = useState(null)
+  const [selectedResult, setSelectedResult] = useState<HistoryDataGet>()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  // const { toast } = useToast()
 
   const loadCalculations = async () => {
     setIsLoading(true)
     try {
-      const data = await API.getCalculationsHistory()
+      const response = await API.getHistory()
+      const data: HistoryDataGet[] = response.data;
+
       setCalculations(data)
     } catch (error: any) {
       setIsLoading(false)
-      // toast({
-      //   title: "Ошибка загрузки",
-      //   description: error.message || "Не удалось загрузить историю расчетов",
-      //   variant: "destructive",
-      // })
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     try {
-      await API.deleteCalculation(id)
-      setCalculations((prev) => prev.filter((calc) => calc.id !== id))
-      // toast({
-      //   title: "Расчет удален",
-      //   description: "Расчет успешно удален из истории",
-      // })
+      await API.deleteHistory(id)
+      setCalculations((History) => History.filter((calc) => calc.id !== id))
+
     } catch (error: any) {
-      // toast({
-      //   title: "Ошибка удаления",
-      //   description: error.message || "Не удалось удалить расчет",
-      //   variant: "destructive",
-      // })
+
     }
   }
 
-  const handleViewResult = (calculation: CalculationHistory) => {
-    setSelectedResult(calculation.result)
+  const handleViewResult = (calculation: HistoryDataGet) => {
+    setSelectedResult(calculation)
     setIsModalOpen(true)
   }
 
@@ -64,7 +52,7 @@ function History() {
 
   const filteredCalculations = calculations.filter(
     (calc) =>
-      calc.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      String(calc.id).toLowerCase().includes(searchTerm.toLowerCase()) ||
       new Date(calc.created_at).toLocaleDateString().includes(searchTerm),
   )
 
@@ -121,11 +109,11 @@ function History() {
                 <TableBody>
                   {filteredCalculations.map((calculation) => (
                     <TableRow key={calculation.id}>
-                      <TableCell className="font-mono text-sm">{calculation.id.slice(0, 8)}...</TableCell>
+                      <TableCell className="font-mono text-sm">{calculation.id}</TableCell>
                       <TableCell>{new Date(calculation.created_at).toLocaleString("ru-RU")}</TableCell>
-                      <TableCell>{calculation.input_data.N}</TableCell>
+                      <TableCell>{calculation.calculate.N}</TableCell>
                       <TableCell>
-                        {calculation.result?.total_cost ? `${calculation.result.total_cost.toFixed(2)} руб` : "N/A"}
+                        {`${calculation.objective.toLocaleString("ru-RU")} руб`}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">

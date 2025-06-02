@@ -31,7 +31,8 @@ TabsList.displayName = "TabsList"
 const TabsTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    value: string
+    value: string,
+    variant?: "default" | "outline";
   }
 >(({ className, ...props }, ref) => (
   <button
