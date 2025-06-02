@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from gas.models import History, Calculate
+
 
 class CalculateSerializer(serializers.Serializer):
     """
@@ -165,9 +167,29 @@ class CalculatedSerializer(serializers.Serializer):
         child=serializers.FloatField(
             min_value = 0
         ),
-        help_text="одержание серы (%)"
+        help_text="Cодержание серы (%)"
     )
     status = serializers.CharField(
         min_length=1,
         help_text="Статус"
     )
+
+class HistorySerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для истории растеча
+    """
+
+    calculate = CalculateSerializer()
+
+    class Meta:
+        model = History
+        fields = ["id", "created_at", "calculate", "objective", "gas_distribution", "total_gas_consumption", "total_coke_consumption",
+                  "total_iron_production", "sulfur_content", "status"]
+    
+    def create(self, validated_data):
+        calculate_data = validated_data.pop("calculate")
+
+        calculate_instance = Calculate.objects.create(**calculate_data)
+        history_instance = History.objects.create(calculate=calculate_instance, **validated_data)
+
+        return history_instance
