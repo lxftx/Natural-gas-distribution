@@ -1,11 +1,13 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from gas.serializers import CalculateSerializer, CalculatedSerializer
-from gas.services import GasDistributionService
-from gas.services import DefaultInputValues
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from gas.models import History
+from gas.serializers import (CalculatedSerializer, CalculateSerializer,
+                             HistorySerializer)
+from gas.services import DefaultInputValues, GasDistributionService
 
 
 # Create your views here.
@@ -85,3 +87,11 @@ class DefaultInputValuesAPIView(APIView):
                 data={"error": "Ошибка при получений входных значений по умолчанию."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+class HistoryViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint для работы с историей расчета.
+    """
+
+    queryset = History.objects.all()
+    serializer_class = HistorySerializer
