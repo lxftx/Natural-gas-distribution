@@ -1,5 +1,6 @@
-from ortools.linear_solver import pywraplp
 from typing import Dict, List
+
+from ortools.linear_solver import pywraplp
 
 from server.settings import ERROR_LOGGER
 
