@@ -1,5 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from user.models import User
 
 
 # Create your models here.
@@ -97,6 +98,7 @@ class History(models.Model):
         help_text="Содержание серы (%)"
     )
     status = models.CharField(verbose_name="Статус")
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, verbose_name="Пользователь", related_name="user")
 
     def __str__(self):
         return f"История №{self.pk}."

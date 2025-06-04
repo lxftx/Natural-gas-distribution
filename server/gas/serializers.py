@@ -1,6 +1,5 @@
+from gas.models import Calculate, History
 from rest_framework import serializers
-
-from gas.models import History, Calculate
 
 
 class CalculateSerializer(serializers.Serializer):
@@ -174,22 +173,41 @@ class CalculatedSerializer(serializers.Serializer):
         help_text="Статус"
     )
 
-class HistorySerializer(serializers.ModelSerializer):
+class CreateHistorySerializer(serializers.ModelSerializer):
     """
     Сериализатор для истории растеча
     """
 
     calculate = CalculateSerializer()
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = History
         fields = ["id", "created_at", "calculate", "objective", "gas_distribution", "total_gas_consumption", "total_coke_consumption",
-                  "total_iron_production", "sulfur_content", "status"]
+                  "total_iron_production", "sulfur_content", "status", "user"]
     
     def create(self, validated_data):
         calculate_data = validated_data.pop("calculate")
-
         calculate_instance = Calculate.objects.create(**calculate_data)
-        history_instance = History.objects.create(calculate=calculate_instance, **validated_data)
+
+        history_instance = History.objects.create(
+            calculate=calculate_instance,
+            user=self.context["request"].user,
+            **validated_data
+        )
 
         return history_instance
+    
+class GetHistorySerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для получения историй расчета
+    """
+
+    calculate = serializers.PrimaryKeyRelatedField(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = History
+        fields = ["id", "created_at", "calculate", "objective", "gas_distribution", "total_gas_consumption", "total_coke_consumption",
+                  "total_iron_production", "sulfur_content", "status", "user"]
+        
