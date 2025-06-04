@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import logging.config
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -46,6 +47,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # apps
+    'gas',
+    'user',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,9 +62,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'corsheaders',
-
-    # apps
-    'gas',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -73,7 +77,20 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
+
+# CORS
+# Разрешаем запросы только с этих доменов
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:8000",
+]
+
+# Разрешаем передачу кук
+CORS_ALLOW_CREDENTIALS = True
+
+# Дополнительно: защита от CSRF
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 ROOT_URLCONF = 'server.urls'
 
@@ -217,3 +234,64 @@ logging.config.dictConfig(LOGGING)
 
 BASE_LOGGER = logging.getLogger("base_logger")
 ERROR_LOGGER = logging.getLogger("error_logger")
+
+# REST_FRAMEWORK
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+# JWT
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,  # Старый refresh-токен автоматически попадает в blacklist, выдается новый refresh-токен
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": False,
+
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": env("SECRET_KEY"),
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+    "JTI_CLAIM": "jti",
+
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+}
+
+# USER
+AUTH_USER_MODEL = "user.User"
+
+# SWAGGER
+SWAGGER_SETTINGS = {
+    'DEFAULT_TAG_SORTING': 'alpha',  # Сортировка тегов по алфавиту, None - порядок добавления (по умолчанию), 'alpha' - алфавитный порядок, Можно передать кастомную функцию для сложной сортировки
+    'TAGS_SORTER': 'alpha', # Аналогичен DEFAULT_TAG_SORTING, но более специфичен для drf-yasg. Контролирует порядок отображения тегов в боковом меню, Поддерживает те же значения, что и DEFAULT_TAG_SORTING
+    'OPERATIONS_SORTER': 'alpha',   # Сортирует endpoints внутри каждой группы (tag) по алфавиту. 'method' - сортирует по HTTP-методу (GET, POST и т.д.), Можно передать функцию для кастомной логики
+    'DEFAULT_MODEL_RENDERING': 'example',   # Определяет, как отображаются схемы моделей в Swagger UI. 'example' - показывает пример значений, 'model' - показывает только типы данных, 'table' - табличное представление
+    'DOC_EXPANSION': 'none',  # Сворачивает все схемы по умолчанию
+    'SHOW_EXTENSIONS': False,  # Скрывает расширения OpenAPI
+}
