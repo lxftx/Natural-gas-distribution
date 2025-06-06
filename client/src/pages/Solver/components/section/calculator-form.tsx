@@ -1,5 +1,6 @@
 import {type FormEvent, useState, useRef, useEffect} from 'react';
 import API from '@/api';
+import { useAuth } from "@/context/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,6 +16,7 @@ function Solver() {
   const [normalized, setNormalized] = useState<FurnaceData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
+  const { isAuthenticated } = useAuth()
 
   const [defaultData, setDefaultData] = useState<FurnaceData | null>(null);
 
@@ -141,7 +143,9 @@ function Solver() {
 
       setIsModalOpen(true);
     } catch (err: any) {
-      setResult({ error: err.response?.data?.error || "Неизвестная ошибка" });
+      const errorMessage =
+        err.response?.data?.error || err.message || "Неизвестная ошибка";
+      setResult({ error: errorMessage });
       setIsModalOpen(true);
     } finally {
       setIsLoading(false);
@@ -149,14 +153,16 @@ function Solver() {
   };
 
   useEffect(() => {
-    if (result && 'gas_distribution' in result && normalized) {
-      const history: HistoryDataPost = {
-        ...result,
-        calculate: normalized
-      };
-      API.addHistory(history);
+    if (result && "gas_distribution" in result && normalized) {
+      if (isAuthenticated) {
+        const history: HistoryDataPost = {
+          ...result,
+          calculate: normalized,
+        }
+        API.addHistory(history)
+      }
     }
-  }, [result, normalized]);
+  }, [result, normalized, isAuthenticated])
 
   return (
     <div className="container mx-auto py-8">

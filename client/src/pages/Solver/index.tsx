@@ -5,16 +5,21 @@ import Solver from "./components/section/calculator-form"
 import History from "./components/section/calculator-history"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useAuth } from "@/context/auth-context"
 
 export default function SolverPage() {
   const [activeTab, setActiveTab] = useState<"solver" | "history">("solver")
+  const { isAuthenticated } = useAuth()
 
+  // Если пользователь не авторизован и выбрал вкладку "history" — переключаем на "solver"
+  if (!isAuthenticated && activeTab === "history") {
+    setActiveTab("solver")
+  }
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
-        
         <Tabs defaultValue="calculator" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
+          <TabsList className={`grid w-full mb-8 ${isAuthenticated ? "grid-cols-2" : "grid-cols-1"}`}>
             <TabsTrigger 
               value="calculator"
               data-state={activeTab === "solver" ? "active": "inactive"}
@@ -22,17 +27,19 @@ export default function SolverPage() {
               onClick={() => setActiveTab("solver")}>
                 Калькулятор
             </TabsTrigger>
-            <TabsTrigger 
-              value="history"
-              data-state={activeTab === "history" ? "active": "inactive"}
-              variant={activeTab === "history" ? "default" : "outline"} 
-              onClick={() => setActiveTab("history")}>
-                История расчетов
+
+            {isAuthenticated && (
+              <TabsTrigger 
+                value="history"
+                data-state={activeTab === "history" ? "active": "inactive"}
+                variant={activeTab === "history" ? "default" : "outline"} 
+                onClick={() => setActiveTab("history")}>
+                  История расчетов
               </TabsTrigger>
+            )}
           </TabsList>
 
-          {
-            activeTab === "solver" && 
+          {activeTab === "solver" && (
             <TabsContent value="calculator">
               <Card>
                 <CardHeader>
@@ -44,11 +51,9 @@ export default function SolverPage() {
                 </CardContent>
               </Card>
             </TabsContent>
-          }
+          )}
 
-
-          {
-            activeTab === "history" &&
+          {activeTab === "history" && isAuthenticated && (
             <TabsContent value="history">
               <Card>
                 <CardHeader>
@@ -60,7 +65,7 @@ export default function SolverPage() {
                 </CardContent>
               </Card>
             </TabsContent>
-          }
+          )}
         </Tabs>
       </div>
     </div>
