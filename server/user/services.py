@@ -22,8 +22,8 @@ class CookieServices:
             value=refresh_token,
             max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],  # Обычно настройки JWT хранятся так
             httponly=True,  # Защита от XSS
-            secure=not settings.DEBUG,  # В разработке может не быть HTTPS
-            samesite='Lax' if settings.DEBUG else 'Strict',  # Баланс между безопасностью и удобством
+            secure=True,
+            samesite='None',
             path='/api/user/',  # Ограничиваем путь, где доступен токен
             domain=settings.SESSION_COOKIE_DOMAIN if hasattr(settings, 'SESSION_COOKIE_DOMAIN') else None,
         )
