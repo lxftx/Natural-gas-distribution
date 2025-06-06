@@ -3,13 +3,14 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView)
-from user.serializers import RegisterUserSerializer, TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from user.serializers import (RegisterUserSerializer,
+                              TokenObtainPairSerializer, UserSerializer)
 from user.services import CookieServices
 
 
@@ -352,3 +353,52 @@ class LogoutAPIView(APIView):
                 {"error": "Произошла ошибка при выходе из системы"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class UserAPIView(APIView):
+    """
+    API для работы с модель User.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Получить информацию о пользователе",
+        operation_description="Предоставляет информацию авторизированного пользователя",
+        tags=["Пользователь"],
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description='Bearer токен. Пример: "Bearer eyJhbGciOi..."',
+                default="Bearer "
+            )
+        ],
+        responses={
+            status.HTTP_200_OK: UserSerializer,
+            status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
+                description="Внутренняя ошибка сервера",
+                examples={
+                    "application/json": {
+                        "error": "Произошла ошибка при получении инфомарции"
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request, *args, **kwargs):
+        try:
+            serializer = UserSerializer(request.user)
+
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
+        except Exception as ex:
+            settings.ERROR_LOGGER.error(f"Get info user data error: {str(ex)}", exc_info=True)
+            return Response(
+                data={"error": "Произошла ошибка при получении инфомарции"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
