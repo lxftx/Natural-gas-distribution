@@ -2,7 +2,7 @@ import {NavLink, useLocation} from "react-router-dom";
 
 const PAGES = [
   { path: '/', label: 'Главная' },
-  { path: '/desc', label: 'Описание' },
+  { path: '/task', label: 'Задача' },
   { path: '/solver', label: 'Решатель' },
 ];
 

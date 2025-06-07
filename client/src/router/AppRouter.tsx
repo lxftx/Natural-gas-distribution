@@ -2,7 +2,7 @@ import {createBrowserRouter} from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import HomePage from "@/pages/Home";
 import SolverPage from "@/pages/Solver"
-import DescriptionPage from "@/pages/Description"
+import TaskPage from "@/pages/Task"
 import LoginPage from "@/pages/Auth";
 import RegisterPage from "@/pages/Register";
 
@@ -20,8 +20,8 @@ export const router = createBrowserRouter([
                 element: <SolverPage/>
             },
             {
-                path: "desc",
-                element: <DescriptionPage/>
+                path: "task",
+                element: <TaskPage/>
             }
         ]
     },
