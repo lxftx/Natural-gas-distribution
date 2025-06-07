@@ -4,6 +4,7 @@ import HomePage from "@/pages/Home";
 import SolverPage from "@/pages/Solver"
 import DescriptionPage from "@/pages/Description"
 import LoginPage from "@/pages/Auth";
+import RegisterPage from "@/pages/Register";
 
 export const router = createBrowserRouter([
     {
@@ -28,4 +29,8 @@ export const router = createBrowserRouter([
         path: "/login",
         element: <LoginPage />,
     },
+        {
+        path: "/register",
+        element: <RegisterPage />,
+    }
 ]);
