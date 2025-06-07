@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from user.serializers import (RegisterUserSerializer,
-                              TokenObtainPairSerializer, UserSerializer)
+from user.serializers import (TokenObtainPairSerializer, UserCreateSerializer,
+                              UserDetailSerializer)
 from user.services import CookieServices
 
 
@@ -222,7 +222,7 @@ class RegisterAPIView(APIView):
         operation_summary="Регистрация новых пользователей",
         operation_description="Создает нового пользователя в системе. " \
         "При успешной регистрации возвращает JWT access-токен и устанавливает refresh-токен в cookie.",
-        request_body=RegisterUserSerializer,
+        request_body=UserCreateSerializer,
         tags=["Пользователь"],
         responses={
             status.HTTP_201_CREATED: openapi.Response(
@@ -264,7 +264,7 @@ class RegisterAPIView(APIView):
         }
     )
     def post(self, request, *args, **kwargs):
-        serializer = RegisterUserSerializer(data=request.data)
+        serializer = UserCreateSerializer(data=request.data)
         
         if not serializer.is_valid():
             return Response(
@@ -376,7 +376,7 @@ class UserAPIView(APIView):
             )
         ],
         responses={
-            status.HTTP_200_OK: UserSerializer,
+            status.HTTP_200_OK: UserDetailSerializer,
             status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
                 description="Внутренняя ошибка сервера",
                 examples={
@@ -389,7 +389,7 @@ class UserAPIView(APIView):
     )
     def get(self, request, *args, **kwargs):
         try:
-            serializer = UserSerializer(request.user)
+            serializer = UserDetailSerializer(request.user)
 
             return Response(
                 data=serializer.data,
