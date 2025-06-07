@@ -54,7 +54,7 @@ export default {
     },
     async registerUser(first_name: string, last_name: string, email: string, password: string): Promise<string> {
       try {
-        const response = await API.post("user/login/", {email, first_name, last_name, password})
+        const response = await API.post("user/register/", {email, first_name, last_name, password})
 
         return response.data.access
       } catch (error: any) {
