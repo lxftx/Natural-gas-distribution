@@ -14,8 +14,7 @@ cd Natural-gas-distribution
 </code></pre>
 <h2>⚙️ Конфигурация окружения</h2>
 <p>Создайте файл <code>.env</code> в корне проекта:</p>
-<pre><code>
-DEBUG=True
+<pre><code>DEBUG=True
 LANGUAGE_CODE=ru
 TIME_ZONE=Asia/Yekaterinburg
 SECRET_KEY=django-insecure-4o@nxycbw)sa=s%r^ry-vvqrulez4#%ou9$4ya3w2(qb55(03a
