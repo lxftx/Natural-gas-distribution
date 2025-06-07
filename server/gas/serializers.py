@@ -2,104 +2,106 @@ from gas.models import Calculate, History
 from rest_framework import serializers
 
 
-class CalculateSerializer(serializers.Serializer):
+class CalculateBaseSerializer(serializers.ModelSerializer):
     """
+    Базовый сериализатор для модели Calculate (Входных данных).
     Сериализатор для расчета оптимального распределения природного газа между доменными печами.
-    Валидирует входные данные и проверяет согласованность размеров массивов.
     """
-
-    # Основные параметры цеха
-    C_k = serializers.FloatField(
-        min_value=0,
-        help_text="Стоимость кокса, руб/(кг кокса)"
-    )
-    C_pg = serializers.FloatField(
-        min_value=0,
-        help_text="Стоимость природного газа, руб/(м3 ПГ)"
-    )
-    V_pg_total = serializers.FloatField(
-        min_value=0,
-        help_text="Лимит расхода природного газа по цеху, м3/ч"
-    )
-    K_total = serializers.FloatField(
-        min_value=0,
-        help_text="Запасы кокса по цеху, т/ч"
-    )
-    P_total = serializers.FloatField(
-        min_value=0,
-        help_text="Требуемая производительность по чугуну, т/ч"
-    )
-    N = serializers.IntegerField(
-        min_value=1,
-        max_value=20,
-        help_text="Количество печей (1-20)"
-    )
-
-    # Параметры по печам (все списки должны иметь длину N)
-    V_pg_0 = serializers.ListField(
-        child=serializers.FloatField(min_value=0),
-        help_text="Базовый расход ПГ по печам, м3/ч"
-    )
-    V_pg_min = serializers.ListField(
-        child=serializers.FloatField(min_value=0),
-        help_text="Минимальный расход ПГ по печам, м3/ч"
-    )
-    V_pg_max = serializers.ListField(
-        child=serializers.FloatField(min_value=0),
-        help_text="Максимальный расход ПГ по печам, м3/ч"
-    )
-    K_0 = serializers.ListField(
-        child=serializers.FloatField(min_value=0),
-        help_text="Базовый расход кокса по печам, т/ч"
-    )
-    e = serializers.ListField(
-        child=serializers.FloatField(min_value=0),
-        help_text="Эквивалент замены кокса, кг/(м3 ПГ)"
-    )
-    P_0 = serializers.ListField(
-        child=serializers.FloatField(min_value=0),
-        help_text="Базовая производительность по печам, т/ч"
-    )
-    S_0 = serializers.ListField(
-        child=serializers.FloatField(min_value=0, max_value=1),
-        help_text="Базовое содержание серы, %"
-    )
-    S_min = serializers.ListField(
-        child=serializers.FloatField(min_value=0, max_value=1),
-        help_text="Минимально допустимое содержание серы, %"
-    )
-    S_max = serializers.ListField(
-        child=serializers.FloatField(min_value=0, max_value=1),
-        help_text="Максимально допустимое содержание серы, %"
-    )
-    delta_P_pg = serializers.ListField(
-        child=serializers.FloatField(),
-        help_text="Влияние ПГ на производство, т/(м3/ч)"
-    )
-    delta_P_k = serializers.ListField(
-        child=serializers.FloatField(),
-        help_text="Влияние кокса на производство, т/(кг/ч)"
-    )
-    delta_S_pg = serializers.ListField(
-        child=serializers.FloatField(),
-        help_text="Влияние ПГ на серу, %/(м3/ч)"
-    )
-    delta_S_k = serializers.ListField(
-        child=serializers.FloatField(),
-        help_text="Влияние кокса на серу, %/(кг/ч)"
-    )
-    delta_S_p = serializers.ListField(
-        child=serializers.FloatField(),
-        help_text="Влияние производительности на серу, %/(т/ч)"
-    )
+    
+    class Meta:
+        model = Calculate
+        fields = []
+        extra_kwargs = {
+            "C_k": {
+                "min_value": 0,
+                "help_text": "Стоимость кокса, руб/(кг кокса)",
+            },
+            "C_pg": {
+                "min_value": 0,
+                "help_text": "Стоимость природного газа, руб/(м3 ПГ)",
+            },
+            "V_pg_total": {
+                "min_value": 0,
+                "help_text": "Лимит расхода природного газа по цеху, м3/ч",
+            },
+            "K_total": {
+                "min_value": 0,
+                "help_text": "Запасы кокса по цеху, т/ч",
+            },
+            "P_total": {
+                "min_value": 0,
+                "help_text": "Требуемая производительность по чугуну, т/ч",
+            },
+            "N": {
+                "min_value": 1,
+                "max_value": 20,
+                "help_text": "Количество печей (1-20)"
+            },
+            "V_pg_0": {
+                "min_length": 1,
+                "help_text": "Базовый расход ПГ по печам, м3/ч"
+            },
+            "V_pg_min": {
+                "min_length": 1,
+                "help_text": "Минимальный расход ПГ по печам, м3/ч",
+            },
+            "V_pg_max": {
+                "min_length": 1,
+                "help_text": "Максимальный расход ПГ по печам, м3/ч",
+            },
+            "K_0": {
+                "min_length": 1,
+                "help_text": "Базовый расход кокса по печам, т/ч",
+            },
+            "e": {
+                "min_length": 1,
+                "help_text": "Эквивалент замены кокса, кг/(м3 ПГ)",
+            },
+            "P_0": {
+                "min_length": 1,
+                "help_text": "Базовая производительность по печам, т/ч",
+            },
+            "S_0": {
+                "min_length": 1,
+                "help_text": "Базовое содержание серы, %",
+            },
+            "S_min": {
+                "min_length": 1,
+                "help_text": "Минимально допустимое содержание серы, %",
+            },
+            "S_max": {
+                "min_length": 1,
+                "help_text": "Максимально допустимое содержание серы, %",
+            },
+            "delta_P_pg": {
+                "min_length": 1,                
+                "help_text": "Влияние ПГ на производство, т/(м3/ч)",
+            },
+            "delta_P_k": {
+                "min_length": 1,
+                "help_text": "Влияние кокса на производство, т/(кг/ч)",
+            },
+            "delta_S_pg": {
+                "min_length": 1,
+                "help_text": "Влияние ПГ на серу, %/(м3/ч)",
+            },
+            "delta_S_k": {
+                "min_length": 1,
+                "help_text": "Влияние кокса на серу, %/(кг/ч)",
+            },
+            "delta_S_p": {
+                "min_length": 1,
+                "help_text": "Влияние производительности на серу, %/(т/ч)",
+            },
+        }
 
     def validate(self, data):
-        n = data['N']
+        n = data["N"]
         list_fields = [
-            'V_pg_0', 'V_pg_min', 'V_pg_max', 'K_0', 'e',
-            'P_0', 'S_0', 'S_min', 'S_max',
-            'delta_P_pg', 'delta_P_k',
-            'delta_S_pg', 'delta_S_k', 'delta_S_p'
+            "V_pg_0", "V_pg_min", "V_pg_max", "K_0", "e",
+            "P_0", "S_0", "S_min", "S_max",
+            "delta_P_pg", "delta_P_k",
+            "delta_S_pg", "delta_S_k", "delta_S_p"
         ]
 
         # Проверка длины массивов
@@ -111,81 +113,90 @@ class CalculateSerializer(serializers.Serializer):
 
         # Проверка минимальных/максимальных значений ПГ
         for i in range(n):
-            if data['V_pg_min'][i] > data['V_pg_max'][i]:
+            if data["V_pg_min"][i] > data["V_pg_max"][i]:
                 raise serializers.ValidationError(
                     f"Минимальный расход ПГ не может превышать максимальный (печь {i + 1})"
                 )
 
-            if not (data['V_pg_min'][i] <= data['V_pg_0'][i] <= data['V_pg_max'][i]):
+            if not (data["V_pg_min"][i] <= data["V_pg_0"][i] <= data["V_pg_max"][i]):
                 raise serializers.ValidationError(
                     f"Базовый расход ПГ для печи {i + 1} выходит за допустимые границы"
                 )
 
         # Проверка содержания серы
         for i in range(n):
-            if data['S_min'][i] > data['S_max'][i]:
+            if data["S_min"][i] > data["S_max"][i]:
                 raise serializers.ValidationError(
                     f"Минимальное содержание серы не может превышать максимальное (печь {i + 1})"
                 )
 
-            if not (data['S_min'][i] <= data['S_0'][i] <= data['S_max'][i]):
+            if not (data["S_min"][i] <= data["S_0"][i] <= data["S_max"][i]):
                 raise serializers.ValidationError(
                     f"Базовое содержание серы для печи {i + 1} выходит за допустимые границы"
                 )
 
         return data
-    
-class CalculatedSerializer(serializers.Serializer):
+
+class CalculateShortSerializer(CalculateBaseSerializer):
     """
-    Сериализатор для рассчитанных оптимальных значений.
+    Сериализатор модели Calculate для вывода в списках.
     """
 
-    objective = serializers.FloatField(
-        min_value = 0,
-        help_text = "Целевая функция руб/ч"
-    )
-    gas_distribution = serializers.ListField(
-        child=serializers.FloatField(
-            min_value = 0
-        ),
-        help_text="Распределение ПГ (м3/ч)"
-    )
-    total_gas_consumption = serializers.FloatField(
-        min_value = 0,
-        help_text = "Общий расход ПГ м3/ч"
-    )
-    total_coke_consumption = serializers.FloatField(
-        min_value = 0,
-        help_text = "Общий расход кокса т/ч"
-    )
-    total_iron_production = serializers.FloatField(
-        min_value = 0,
-        help_text = "Общее производство чугуна т/ч"
-    )
-    sulfur_content = serializers.ListField(
-        child=serializers.FloatField(
-            min_value = 0
-        ),
-        help_text="Cодержание серы (%)"
-    )
-    status = serializers.CharField(
-        min_length=1,
-        help_text="Статус"
-    )
+    class Meta(CalculateBaseSerializer.Meta):
+        fields = CalculateBaseSerializer.Meta.fields + ["C_k", "C_pg", "V_pg_total", "K_total", "P_total", "N"]
 
-class CreateHistorySerializer(serializers.ModelSerializer):
+class CalculateCreateSerializer(CalculateBaseSerializer):
     """
-    Сериализатор для истории растеча
+    Сериализатор модели Calculate для создания.
+    Валидирует входные данные и проверяет согласованность размеров массивов.
     """
 
-    calculate = CalculateSerializer()
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    class Meta(CalculateBaseSerializer.Meta):
+        fields = CalculateBaseSerializer.Meta.fields + ["C_k", "C_pg", "V_pg_total", "K_total", "P_total", "N", "V_pg_0", 
+                                                        "V_pg_min", "V_pg_max", "K_0", "e", "P_0", "S_0", "S_min", "S_max", 
+                                                        "delta_P_pg", "delta_P_k", "delta_S_pg", "delta_S_k", "delta_S_p"]
+
+class HistoryBaseSerializer(serializers.ModelSerializer):
+    """
+    Базовый сериализатор для модели History.
+    Сериализатор для хранения оптимального расчета распределения природного газа между доменными печами
+    """
 
     class Meta:
         model = History
-        fields = ["id", "created_at", "calculate", "objective", "gas_distribution", "total_gas_consumption", "total_coke_consumption",
-                  "total_iron_production", "sulfur_content", "status", "user"]
-    
+        fields = []
+        extra_kwargs = {
+            "objective": {
+                "min_value": 0,
+                "help_text": "Целевая функция руб/ч",
+            },
+            "gas_distribution": {
+                "min_length": 1,
+                "help_text": "Распределение ПГ (м3/ч)",
+            },
+            "total_gas_consumption": {
+                "min_value": 0,
+                "help_text": "Общий расход ПГ м3/ч",
+            },
+            "total_coke_consumption": {
+                "min_value": 0,
+                "help_text": "Общий расход кокса т/ч",
+            },
+            "total_iron_production": {
+                "min_value": 0,
+                "help_text": "Общее производство чугуна т/ч",
+            },
+            "sulfur_content": {
+                "min_length": 1,
+                "help_text": "Cодержание серы (%)",
+            },
+            "status": {
+                "min_length": 1,
+                "help_text": "Статус",
+            },
+        }
+        read_only_fields = ["created_at", "updated_at"]
+
     def create(self, validated_data):
         calculate_data = validated_data.pop("calculate")
         calculate_instance = Calculate.objects.create(**calculate_data)
@@ -197,17 +208,34 @@ class CreateHistorySerializer(serializers.ModelSerializer):
         )
 
         return history_instance
-    
-class GetHistorySerializer(serializers.ModelSerializer):
+
+class HistoryListSerializer(HistoryBaseSerializer):
     """
-    Сериализатор для получения историй расчета
+    Сериализатор модели History для вывода списка расчетов.
     """
 
-    calculate = serializers.PrimaryKeyRelatedField(read_only=True)
+    calculate = CalculateShortSerializer()
+
+    class Meta(HistoryBaseSerializer.Meta):
+        fields = HistoryBaseSerializer.Meta.fields + ["id", "created_at", "objective", "gas_distribution", "total_gas_consumption", "total_coke_consumption", "total_iron_production", "sulfur_content", "status", "calculate"]
+
+class HistoryDetailSerializer(HistoryBaseSerializer):
+    """
+    Сериализатор модели History для детального просмотра расчетов.
+    """
+
+    class Meta(HistoryBaseSerializer.Meta):
+        fields = HistoryBaseSerializer.Meta.fields + ["objective", "gas_distribution", "total_gas_consumption", "total_coke_consumption", "total_iron_production", "sulfur_content", "status"]
+
+class HistoryCreateSerializer(HistoryBaseSerializer):
+    """
+    Сериализатор модели History для создания расчета.
+    Автоматически привязывает расчет к текущему пользователю.
+    """
+
+    calculate = CalculateCreateSerializer()
     user = serializers.PrimaryKeyRelatedField(read_only=True)
 
-    class Meta:
-        model = History
-        fields = ["id", "created_at", "calculate", "objective", "gas_distribution", "total_gas_consumption", "total_coke_consumption",
+    class Meta(HistoryBaseSerializer.Meta):
+        fields = HistoryBaseSerializer.Meta.fields + ["id", "created_at", "calculate", "objective", "gas_distribution", "total_gas_consumption", "total_coke_consumption",
                   "total_iron_production", "sulfur_content", "status", "user"]
-        

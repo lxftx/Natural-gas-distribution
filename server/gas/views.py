@@ -2,8 +2,9 @@ from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from gas.models import History
-from gas.serializers import (CalculatedSerializer, CalculateSerializer,
-                             CreateHistorySerializer, GetHistorySerializer)
+from gas.serializers import (CalculateCreateSerializer,
+                             HistoryCreateSerializer, HistoryDetailSerializer,
+                             HistoryListSerializer)
 from gas.services import DefaultInputValues, GasDistributionService
 from rest_framework import status
 from rest_framework.exceptions import NotFound
@@ -21,10 +22,10 @@ class CalculateAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="Вызов расчета природного газа",
         operation_description="API метод расчета задачи распределения природного газа в группе доменных печей",
-        request_body=CalculateSerializer,
+        request_body=CalculateCreateSerializer,
         tags=["Расчет"],
         responses={
-            status.HTTP_200_OK: CalculatedSerializer,
+            status.HTTP_200_OK: CalculateCreateSerializer,
             status.HTTP_400_BAD_REQUEST: openapi.Response(
                 description="Оптимальное решение не найдено",
                 examples={
@@ -37,11 +38,11 @@ class CalculateAPIView(APIView):
     )
     def post(self, request):
         try:
-            serializer = CalculateSerializer(data=request.data)
+            serializer = CalculateCreateSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
 
             result = GasDistributionService.calculate_distribution(serializer.validated_data)
-            serializer = CalculatedSerializer(data=result)
+            serializer = HistoryDetailSerializer(data=result)
             serializer.is_valid(raise_exception=True)
 
             result = serializer.validated_data
@@ -65,7 +66,7 @@ class DefaultInputValuesAPIView(APIView):
         operation_description="API метод получения входных значений по умолчанию",
         tags=["Значения по умолчанию"],
         responses={
-            status.HTTP_200_OK: CalculateSerializer,
+            status.HTTP_200_OK: CalculateCreateSerializer,
             status.HTTP_400_BAD_REQUEST: openapi.Response(
                 description="Ошибка получения входных данных",
                 examples={
@@ -79,7 +80,7 @@ class DefaultInputValuesAPIView(APIView):
     def get(self, *args, **kwargs):
         try:
             values = DefaultInputValues.get_default_values()
-            serializer = CalculateSerializer(data=values)
+            serializer = CalculateCreateSerializer(data=values)
             serializer.is_valid(raise_exception=True)
 
             result = serializer.validated_data
@@ -123,7 +124,7 @@ class HistoryAPIView(APIView):
             )
         ],
         responses={
-            status.HTTP_200_OK: GetHistorySerializer(many=True),
+            status.HTTP_200_OK: HistoryListSerializer(many=True),
             status.HTTP_404_NOT_FOUND: openapi.Response(
                 description="История не была найдена",
                 examples={
@@ -151,10 +152,10 @@ class HistoryAPIView(APIView):
                 if not history:
                     raise NotFound("История не найдена")
                 
-                serializer = GetHistorySerializer(history)
+                serializer = HistoryListSerializer(history)
             else:
                 queryset = History.objects.filter(user=request.user).select_related("calculate", "user")
-                serializer = GetHistorySerializer(queryset, many=True)
+                serializer = HistoryListSerializer(queryset, many=True)
 
 
             return Response(
@@ -177,7 +178,7 @@ class HistoryAPIView(APIView):
         operation_summary="Создание новой записи истории",
         operation_description="Создает новую запись в истории расчетов",
         tags=['История расчетов'],
-        request_body=CreateHistorySerializer,
+        request_body=HistoryCreateSerializer,
         manual_parameters=[
             openapi.Parameter(
                 name='Authorization',
@@ -203,7 +204,7 @@ class HistoryAPIView(APIView):
         }
     )
     def post(self, request, *args, **kwargs):
-        serializer = CreateHistorySerializer(data=request.data, context={"request": request})
+        serializer = HistoryCreateSerializer(data=request.data, context={"request": request})
         try:
             if not serializer.is_valid():
                 return Response(
