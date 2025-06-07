@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +13,7 @@ function History() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedResult, setSelectedResult] = useState<HistoryDataGet>()
+  const [error, setError] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const loadCalculations = async () => {
@@ -22,10 +21,10 @@ function History() {
     try {
       const response = await API.getHistory()
       const data: HistoryDataGet[] = response.data;
-
       setCalculations(data)
+      setError(null)
     } catch (error: any) {
-      setIsLoading(false)
+      setError(error.response?.data?.error || error.message || "Неизвестная ошибка при загрузке истории")
     } finally {
       setIsLoading(false)
     }
@@ -35,20 +34,27 @@ function History() {
     try {
       await API.deleteHistory(id)
       setCalculations((History) => History.filter((calc) => calc.id !== id))
-
+      setError(null)
     } catch (error: any) {
-
+      setError(error.response?.data?.error || error.message || "Неизвестная ошибка при удалении записи")
     }
   }
 
   const handleViewResult = (calculation: HistoryDataGet) => {
     setSelectedResult(calculation)
+    setError(null)
     setIsModalOpen(true)
   }
 
   useEffect(() => {
     loadCalculations()
   }, [])
+
+  useEffect(() => {
+    if (error) {
+      setIsModalOpen(true)
+    }
+  }, [error])
 
   const filteredCalculations = calculations.filter(
     (calc) =>
@@ -84,7 +90,7 @@ function History() {
             Обновить
           </Button>
         </div>
-        
+
         {/* Таблица расчетов */}
         <Card>
           <CardHeader>
@@ -134,7 +140,16 @@ function History() {
         </Card>
       </div>
 
-      {isModalOpen && selectedResult && <ResultModal data={selectedResult} onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (selectedResult || error) && (
+        <ResultModal
+          data={error ? { error } : selectedResult!}
+          onClose={() => {
+            setIsModalOpen(false)
+            setError(null)
+            setSelectedResult(undefined)
+          }}
+        />
+      )}
     </>
   )
 }

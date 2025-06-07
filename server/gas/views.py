@@ -1,15 +1,15 @@
+from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from gas.models import History
 from gas.serializers import (CalculatedSerializer, CalculateSerializer,
-                             GetHistorySerializer, CreateHistorySerializer)
+                             CreateHistorySerializer, GetHistorySerializer)
 from gas.services import DefaultInputValues, GasDistributionService
 from rest_framework import status
+from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.conf import settings
-from rest_framework.exceptions import NotFound
 
 
 # Create your views here.
@@ -17,6 +17,7 @@ class CalculateAPIView(APIView):
     """
     API метод расчета задачи распределения природного газа в группе доменных печей.
     """
+    
     @swagger_auto_schema(
         operation_summary="Вызов расчета природного газа",
         operation_description="API метод расчета задачи распределения природного газа в группе доменных печей",
@@ -58,6 +59,7 @@ class DefaultInputValuesAPIView(APIView):
     """
     API метод получения входных значений по умолчанию
     """
+
     @swagger_auto_schema(
         operation_summary="Получить значения по умолчанию",
         operation_description="API метод получения входных значений по умолчанию",
@@ -74,7 +76,6 @@ class DefaultInputValuesAPIView(APIView):
             )
         }
     )
-
     def get(self, *args, **kwargs):
         try:
             values = DefaultInputValues.get_default_values()
@@ -202,7 +203,7 @@ class HistoryAPIView(APIView):
         }
     )
     def post(self, request, *args, **kwargs):
-        serializer = CreateHistorySerializer(data=request.data)
+        serializer = CreateHistorySerializer(data=request.data, context={"request": request})
         try:
             if not serializer.is_valid():
                 return Response(
@@ -236,7 +237,7 @@ class HistoryAPIView(APIView):
             ),
             openapi.Parameter(
                 name="id",
-                in_=openapi.IN_PATH,
+                in_=openapi.IN_QUERY,
                 type=openapi.TYPE_INTEGER,
                 required=True,
                 description="Идентификатор истории для удаления истории"
