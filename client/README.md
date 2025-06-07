@@ -12,7 +12,7 @@ cd Natural-gas-distribution
 </code></pre>
 <h2>⚙️ Конфигурация окружения</h2>
 <p>Создайте файл <code>.env</code> в корне проекта:</p>
-<code><pre>
+<code>
 DEBUG=True
 LANGUAGE_CODE=ru
 TIME_ZONE=Asia/Yekaterinburg
@@ -24,7 +24,7 @@ DB_HOST=database
 DB_PORT=5432
 VITE_API_URL=http://localhost:7000/api/
 CLIENT_URLS=http://localhost:8000,http://127.0.0.1:8000
-</code></pre>
+</code>
 <h2>🚀 Запуск</h2>
 <pre><code>docker compose build
 docker compose up
