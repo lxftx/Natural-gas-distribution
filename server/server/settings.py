@@ -25,7 +25,8 @@ env = environ.Env(
     DB_USER=(str),
     DB_PASS=(str),
     DB_HOST=(str),
-    DB_PORT=(int)
+    DB_PORT=(int),
+    CLIENT_URLS=(list),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -80,10 +81,7 @@ MIDDLEWARE = [
 
 # CORS
 # Разрешаем запросы только с этих доменов
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8000",
-]
-
+CORS_ALLOWED_ORIGINS = env("CLIENT_URLS")
 # Разрешаем передачу кук
 CORS_ALLOW_CREDENTIALS = True
 
