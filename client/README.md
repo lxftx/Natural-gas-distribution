@@ -6,10 +6,8 @@
    <li>Истории сохранённых расчётов с возможностью просмотра / удаления</li>
 </ul>
 <h2>📦 Установка</h2>
-<pre><code>
-git clone https://github.com/lxftx/Natural-gas-distribution.git
-cd Natural-gas-distribution
-</code></pre>
+<pre><code>git clone https://github.com/lxftx/Natural-gas-distribution.git
+cd Natural-gas-distribution</code></pre>
 <h2>⚙️ Конфигурация окружения</h2>
 <p>Создайте файл <code>.env</code> в корне проекта:</p>
 <pre><code>DEBUG=True
@@ -22,12 +20,11 @@ DB_PASS=admin
 DB_HOST=database
 DB_PORT=5432
 VITE_API_URL=http://localhost:7000/api/
-CLIENT_URLS=http://localhost:8000,http://127.0.0.1:8000
-</code></pre>
+CLIENT_URLS=http://localhost:8000,http://127.0.0.1:8000</code></pre>
 <h2>🚀 Запуск</h2>
 <pre><code>docker compose build
-docker compose up
-docker compose run --rm server sh -c "python manage.py makemigrations && python manage.py migrate"</code></pre>
+docker compose run --rm server sh -c "python manage.py makemigrations && python manage.py migrate"
+docker compose up</code></pre>
 <h2>🗂 Структура</h2>
 <ul>
    <li>
