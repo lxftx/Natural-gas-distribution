@@ -21,12 +21,11 @@ DB_PASS=admin
 DB_HOST=database
 DB_PORT=5432
 VITE_API_URL=http://localhost:7000/api/
-CLIENT_URLS=http://localhost:8000,http://127.0.0.1:8000
-</code></pre>
+CLIENT_URLS=http://localhost:8000,http://127.0.0.1:8000</code></pre>
 <h3>3. Установка и запуск сервера</h3>
 <pre><code>docker compose build
-docker compose up
-docker compose run --rm server sh -c "python manage.py makemigrations && python manage.py migrate"</code></pre>
+docker compose run --rm server sh -c "python manage.py makemigrations && python manage.py migrate"
+docker compose up</code></pre>
 <h2>🔑 Авторизация</h2>
 <p>Реализована регистрация, вход в систему и защита маршрутов для авторизованных пользователей.</p>
 <h2>🧮 Расчет</h2>
